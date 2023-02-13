@@ -41,7 +41,7 @@ class Fabrication(BaseModel):
     membrane:   Optional[Dict]
     pads:       Optional[Dict]
     stems:      Optional[Dict]
-    stack:      Optional[Dict]
+    stack:      Optional[List]
 
 class Wafer(BaseModel):
     '''
@@ -63,8 +63,11 @@ class Layer(BaseModel):
     material:           str
     orintation:         Optional[str]
     thickness:          float
+    width:              Optional[float]
+    length:             Optional[float]
     process:            str
     fabricationDetails: Optional[Dict]
+    fabricationDate:    Optional[datetime]
 
 class Stems(BaseModel):
     '''
@@ -73,6 +76,9 @@ class Stems(BaseModel):
     material:           str
     orintation:         Optional[str]
     type:               str
+    width:              Optional[float]
+    long:               Optional[float]
+    height:             Optional[float]
     process:            str
     fabricationDetails: Optional[Dict]
 
@@ -83,3 +89,31 @@ class Stems(BaseModel):
             raise NameError(value=value, message="The field type can only take the values inner or outer")
         return value
 
+class Pads(BaseModel):
+    '''
+    Layer details
+    '''
+    material:           str
+    orintation:         Optional[str]
+    thickness:          float
+    shape:              Optional[Dict]
+    process:            str
+    fabricationDetails: Optional[Dict]
+
+class ShapePads(BaseModel):
+    '''
+    Shape definition
+    '''
+    image:              Optional[str]
+    parameter_X:        Optional[float]
+    parameter_h:        Optional[float]
+    parameter_Y:        Optional[float]
+    parameter_H:        Optional[float]
+    parameter_D:        Optional[float]
+
+################################################################
+## fabrication processes
+################################################################
+#Sputtering DC-RF (resto)
+#e-beam evaporation (2 capa oro)
+#electroplating (absorvente)
