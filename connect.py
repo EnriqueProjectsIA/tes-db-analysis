@@ -5,6 +5,7 @@ class DatabaseTes:
 
     def __init__(self,local:bool):
         self.local = local
+        self.db = False
 
     def connect(self):
         if self.local == True:
@@ -21,12 +22,25 @@ class DatabaseTes:
             
         
         try:
-            self.client = pymongo.MongoClient(MONGO_URI,serverSelectionTimeoutMS = MONGO_TIMEOUT)
+            client = pymongo.MongoClient(MONGO_URI,serverSelectionTimeoutMS = MONGO_TIMEOUT)
+            self.db =client.CSIC
+
+
         except pymongo.errors.ServerSelectionTimeoutError as TimeOutExceed:
             print('Timeout exceeded')
         except pymongo.errors.ConnectionFailure as errorConnection:
             print('Connection failure ')+errorConnection
-        
+    
+    def collection(self,collection:str):
+
+        assert self.db != False, 'Se necesita el método connect'
+        assert collection in ['tes'], 'La collección no existe'
+
+        if collection == 'tes':
+            self.collec = self.db.tes
+
 
 if __name__ == '__main__':
-    print('ok')
+    objeto = DatabaseTes(True)
+    objeto.connect()
+    db = objeto.collection('tes')
