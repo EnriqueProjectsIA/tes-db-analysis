@@ -54,3 +54,32 @@ class Wafer(BaseModel):
     purchaseDate:   Optional[datetime]
     divisions:      Optional[List]
     chipsOnWafer:   Optional[List]
+    comments:       Optional[str]
+
+class Layer(BaseModel):
+    '''
+    Layer details
+    '''
+    material:           str
+    orintation:         Optional[str]
+    thickness:          float
+    process:            str
+    fabricationDetails: Optional[Dict]
+
+class Stems(BaseModel):
+    '''
+    stems detais
+    '''
+    material:           str
+    orintation:         Optional[str]
+    type:               str
+    process:            str
+    fabricationDetails: Optional[Dict]
+
+    @validator('type')
+    @classmethod
+    def validate_SampleName(cls, value):
+        if value not in ['inner','outer']:
+            raise NameError(value=value, message="The field type can only take the values inner or outer")
+        return value
+
