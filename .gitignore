@@ -174,5 +174,6 @@ poetry.toml
 
 ### Secret ###
 secrets.txt
+OutputData/
 
 # End of https://www.toptal.com/developers/gitignore/api/python
