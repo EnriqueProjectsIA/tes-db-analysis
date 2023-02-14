@@ -2,6 +2,109 @@ from pydantic import BaseModel, validator, root_validator
 from typing import Optional, List, Dict, Tuple
 from datetime import datetime
 
+################################################################
+## Errores
+################################################################
+
+class NameError(Exception):
+    '''Exception raised when validation string is invalid'''
+
+    def __init__(self, value:str, message:str) ->None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
+class UnitMissingError(Exception):
+    '''Exception raised when a vulue is given but not the units'''
+
+    def __init__(self, values:dict, message:str) ->None:
+        self.values = values
+        self.message = message
+        super().__init__(message)
+
+class ErrorMissingError(Exception):
+    '''Exception raised when a value is given but no error is provided '''
+    def __init__(self, values:dict, message:str) ->None:
+        self.values = values
+        self.message = message
+        super().__init__(message)
+
+class DlimiterNumberError(Exception):
+    '''Exception raised when incorrect number of delimiter'''
+
+    def __init__(self, value:int, message:str) ->None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+class WrongDateFormat(Exception):
+    '''Exception raised when incorrect number of delimiter'''
+
+    def __init__(self, value:int, message:str) ->None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
+################################################################
+## Values and units
+################################################################
+
+class PairValueUnit(BaseModel):
+    quantity:   Optional[float] = None
+    units:      Optional[str] = None
+
+    @root_validator(pre = True)
+    @classmethod
+    def checkForUnits(cls, values:Dict)->Dict:
+        valueToCheck = values.get('quantity')
+        unitToCheck = values.get('units')
+        if valueToCheck!=None and unitToCheck==None:
+            raise UnitMissingError(values = values, message="A measure has to have units")
+        return values
+
+class PairValueUnitCom(BaseModel):
+    quantity:   Optional[list[float]] = None
+    units:      Optional[str] = None
+    comments:   Optional[List[str]] 
+
+    @root_validator(pre = True)
+    @classmethod
+    def checkForUnits(cls, values:Dict)->Dict:
+        valueToCheck = values.get('quantity')
+        unitToCheck = values.get('units')
+        if valueToCheck!=None and unitToCheck==None:
+            raise UnitMissingError(values = values, message="A measure has to have units")
+        return values
+
+class MagnitudError(BaseModel):
+    quantity: Optional[float] = None
+    error: Optional[float] = None
+    units : Optional[str] = None
+    @root_validator(pre = True)
+    @classmethod
+    def checkForUnits(cls, values:Dict)->Dict:
+        valueToCheck = values.get('quantity')
+        unitToCheck = values.get('units')
+        errorToCheck = values.get('error')
+        if valueToCheck!=None and unitToCheck==None:
+            raise UnitMissingError(values = values, message="A measure has to have units")
+        if valueToCheck!=None and errorToCheck==None:
+            raise ErrorMissingError(values = values, message="A measure has to have an error")
+        return values
+
+
+class PairListValueUnit(BaseModel):
+    quantity:   Optional[List[float]] = []
+    units:      Optional[str] = None
+
+    @root_validator(pre = True)
+    @classmethod
+    def checkForUnits(cls, values:Dict)->Dict:
+        valueToCheck = values.get('quantity')
+        unitToCheck = values.get('units')
+        if valueToCheck!=[] and unitToCheck==None:
+            raise UnitMissingError(values = values, message="A measure has to have units")
+        return values
+
 
 
 ################################################################
@@ -62,9 +165,9 @@ class Layer(BaseModel):
     '''
     material:           str
     orintation:         Optional[str]
-    thickness:          float
-    width:              Optional[float]
-    length:             Optional[float]
+    thickness:          PairValueUnit
+    width:              Optional[PairValueUnit]
+    length:             Optional[PairValueUnit]
     process:            str
     fabricationDetails: Optional[Dict]
     fabricationDate:    Optional[datetime]
@@ -76,9 +179,9 @@ class Stems(BaseModel):
     material:           str
     orintation:         Optional[str]
     type:               str
-    width:              Optional[float]
-    long:               Optional[float]
-    height:             Optional[float]
+    width:              Optional[PairValueUnit]
+    long:               Optional[PairValueUnit]
+    height:             Optional[PairValueUnit]
     process:            str
     fabricationDetails: Optional[Dict]
 
@@ -95,7 +198,7 @@ class Pads(BaseModel):
     '''
     material:           str
     orintation:         Optional[str]
-    thickness:          float
+    thickness:          PairValueUnit
     shape:              Optional[Dict]
     process:            str
     fabricationDetails: Optional[Dict]
@@ -105,15 +208,122 @@ class ShapePads(BaseModel):
     Shape definition
     '''
     image:              Optional[str]
-    parameter_X:        Optional[float]
-    parameter_h:        Optional[float]
-    parameter_Y:        Optional[float]
-    parameter_H:        Optional[float]
-    parameter_D:        Optional[float]
+    parameter_X:        Optional[PairValueUnit]
+    parameter_h:        Optional[PairValueUnit]
+    parameter_Y:        Optional[PairValueUnit]
+    parameter_H:        Optional[PairValueUnit]
+    parameter_D:        Optional[PairValueUnit]
 
 ################################################################
 ## fabrication processes
 ################################################################
-#Sputtering DC-RF (resto)
-#e-beam evaporation (2 capa oro)
-#electroplating (absorvente)
+
+class AnnealingProfile(BaseModel):
+    steps:          Optional[int] = None
+    temperature:    Optional[PairValueUnit]
+    time:           Optional[PairValueUnit]
+
+class Annealing(BaseModel):
+    type:       Optional[str] = 'NA'
+    ramp:       Optional[str] = 'NA'
+    profile:    Optional[List[AnnealingProfile]]
+
+
+class FabricationPresure(BaseModel):
+    atmosphere: Optional[str] = 'ar'
+    type:       Optional[str] = "pressure"
+    quantity:   Optional[float] = None
+    units:      Optional[str] = None
+
+    @root_validator()
+    @classmethod
+    def checkForUnits(cls, values:Dict) -> Dict:
+        valueToCheck = values.get('quantity')
+        unitToCheck = values.get('units')
+        if valueToCheck!=None and unitToCheck==None:
+            raise UnitMissingError(values = values, message="A measure has to have units")
+        return values
+
+class Sputtering(BaseModel):
+
+    method:                 str = 'dc-sputtering'
+    annealing:              Optional[Annealing]
+    chamberName:            Optional[str]
+    chamberConfiguration:   Optional[str]
+    basePresure:            Optional[PairValueUnit]
+    fabricationPresure:     Optional[FabricationPresure]
+    fabricationPower:       Optional[PairValueUnit]
+    fabricationDCVias:      Optional[PairValueUnit]
+    fabricationIDC:         Optional[PairValueUnit]
+    depositionRate:         Optional[PairValueUnit]
+    place:                  str
+    fabricationDate:        datetime
+
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
+class EbeamEvaporation(BaseModel):
+    place: str
+    fabricationDate: Optional[datetime]
+
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
+class Electroplating(BaseModel):
+    place: str
+    fabricationDate: Optional[datetime]
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
+
+
+
+
