@@ -1,6 +1,7 @@
 from pydantic import BaseModel, validator, root_validator
 from typing import Optional, List, Dict, Tuple
 from datetime import datetime
+import re
 
 ################################################################
 ## Errores
