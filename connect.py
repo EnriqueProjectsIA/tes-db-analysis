@@ -8,6 +8,9 @@ class DatabaseTes:
         self.db = False
 
     def connect(self):
+        '''
+        Genera una conexión a una base de datos MongoDB local o remota
+        '''
         if self.local == True:
             MONGO_HOST = 'localhost'
             MONGO_PORT = '27017'
@@ -32,7 +35,9 @@ class DatabaseTes:
             print('Connection failure ')+errorConnection
     
     def collection(self,collection:str):
-
+        '''
+        Genera una conexión a una colección
+        '''
         assert self.db != False, 'Se necesita el método connect'
         assert collection in ['tes'], 'La collección no existe'
 
@@ -44,3 +49,4 @@ if __name__ == '__main__':
     objeto = DatabaseTes(True)
     objeto.connect()
     db = objeto.collection('tes')
+    dbt = objeto.collec

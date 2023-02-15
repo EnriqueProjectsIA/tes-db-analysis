@@ -44,6 +44,14 @@ class WrongDateFormat(Exception):
         self.value = value
         self.message = message
         super().__init__(message)
+class MultitransError(Exception):
+    '''Exception raised when incorrect Multitransition value'''
+
+    def __init__(self, value:str, message:str) ->None:
+        self.value = value
+        self.message = message
+        super().__init__(message)
+
 
 ################################################################
 ## Values and units
@@ -324,6 +332,55 @@ class Electroplating(BaseModel):
                 raise DlimiterNumberError(value, 'Error in date delimiter')
         value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
         return value
+
+################################################################
+## Calculated data
+################################################################
+
+class TCType(BaseModel):
+    multipleTrans: str
+    amount:        int
+    reentrant:     str
+
+    @validator('multipleTrans', pre = True)
+    @classmethod
+    def check_str(cls,value:str)->str:
+        if value not in ['y','n']:
+            raise MultitransError(value,'multipleTrans can only take values y or n')
+        return value
+    @validator('reentrant', pre = True)
+    @classmethod
+    def check_str_(cls,value:str)->str:
+        if value not in ['y','n']:
+            raise MultitransError(value,'reentrant can only take values y or n')
+        return value
+
+
+
+class FormFactor(BaseModel):
+    '''
+    Calculated data from shape
+    '''
+    area:       Optional[PairValueUnit]
+    perimeter:  Optional[PairValueUnit]
+    aspectRatio:Optional[PairValueUnit]
+
+class Transport(BaseModel):
+    '''
+    Calculated data from transport measurements
+    '''
+
+    sheetResistance: Optional[PairValueUnit]
+    minCurrent:      Optional[PairValueUnitCom]
+    TcDescription:   Optional[TCType]
+
+class CalculatedData(BaseModel):
+    '''
+    General structure
+    '''
+    formFactors: Optional[FormFactor]
+    transport:   Optional[List]
+
 
 
 
