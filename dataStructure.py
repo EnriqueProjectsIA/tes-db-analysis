@@ -141,9 +141,9 @@ class Fabrication(BaseModel):
     General structure for a TES
     '''
     wafer:      Optional[Dict]
-    absorber:   Optional[Dict]
+    absorber:   Optional[List]
     membrane:   Optional[Dict]
-    pads:       Optional[Dict]
+    pads:       Optional[List]
     stems:      Optional[Dict]
     stack:      Optional[List]
 
@@ -158,6 +158,7 @@ class Wafer(BaseModel):
     purchaseDate:   Optional[datetime]
     divisions:      Optional[List]
     chipsOnWafer:   Optional[List]
+    image:          Optional[str]
     comments:       Optional[str]
 
 class Layer(BaseModel):
@@ -166,7 +167,7 @@ class Layer(BaseModel):
     '''
     material:           str
     orintation:         Optional[str]
-    thickness:          PairValueUnit
+    thickness:          Optional[PairValueUnit]
     width:              Optional[PairValueUnit]
     length:             Optional[PairValueUnit]
     process:            str
@@ -199,7 +200,7 @@ class Pads(BaseModel):
     '''
     material:           str
     orintation:         Optional[str]
-    thickness:          PairValueUnit
+    thickness:          Optional[PairValueUnit]
     shape:              Optional[Dict]
     process:            str
     fabricationDetails: Optional[Dict]
