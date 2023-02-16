@@ -148,12 +148,55 @@ class Fabrication(BaseModel):
     '''
     General structure for a TES
     '''
-    wafer:      Optional[Dict]
-    absorber:   Optional[List]
-    membrane:   Optional[Dict]
-    pads:       Optional[List]
-    stems:      Optional[Dict]
-    stack:      Optional[List]
+    wafer:          Optional[Dict]
+    absorber:       Optional[List]
+    membrane:       Optional[Dict]
+    pads:           Optional[List]
+    stems:          Optional[Dict]
+    stack:          Optional[List]
+    place:          str = 'INMA'
+    startingDate:   Optional[datetime]
+    endingDate:     Optional[datetime]
+
+
+    @validator('startingDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
+
+    @validator('endingDate', pre = True, allow_reuse=True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
 
 class Wafer(BaseModel):
     '''
@@ -169,6 +212,26 @@ class Wafer(BaseModel):
     image:          Optional[str]
     comments:       Optional[str]
 
+
+    @validator('purchaseDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
 class Layer(BaseModel):
     '''
     Layer details
@@ -182,6 +245,25 @@ class Layer(BaseModel):
     fabricationDetails: Optional[Dict]
     fabricationDate:    Optional[datetime]
 
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
+
 class Stems(BaseModel):
     '''
     stems detais
@@ -194,12 +276,32 @@ class Stems(BaseModel):
     height:             Optional[PairValueUnit]
     process:            str
     fabricationDetails: Optional[Dict]
+    fabricationDate:    Optional[datetime]
 
     @validator('type')
     @classmethod
     def validate_SampleName(cls, value):
         if value not in ['inner','outer']:
             raise NameError(value=value, message="The field type can only take the values inner or outer")
+        return value
+
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
         return value
 
 class Pads(BaseModel):
@@ -212,6 +314,27 @@ class Pads(BaseModel):
     shape:              Optional[Dict]
     process:            str
     fabricationDetails: Optional[Dict]
+    fabricationDate:    Optional[datetime]
+
+
+    @validator('fabricationDate', pre = True)
+    @classmethod
+    def dateFormated(cls,value:str)->datetime:
+        delimiter = re.findall(r'\D', value)
+        vd = delimiter[0]
+        if len(delimiter)!=2:
+            raise DlimiterNumberError(value, 'Error in date delimiter')
+        else:
+            dateFormat=f'%Y{vd}%m{vd}%d'
+        if int(value.split(vd)[0])<2000:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if int(value.split(vd)[1])>12:
+            raise WrongDateFormat(value,'Appropiate date format YYYY-MM-DD')
+        if len(delimiter)==2:
+            if delimiter[0]!=delimiter[1]:
+                raise DlimiterNumberError(value, 'Error in date delimiter')
+        value = datetime.combine(datetime.strptime(value, dateFormat),datetime.min.time())
+        return value
 
 class ShapePads(BaseModel):
     '''
@@ -343,11 +466,15 @@ class MeasTypeGeneral(BaseModel):
 
 class TCmeas(BaseModel):
     fromFile:       str
+    cryostat:       str
+    holder:         str
     primaryType:    str
     secondaryType:  str
     current:        float
     reentrant:      str
     data:           Optional[List[PairListValueUnit]]
+    date:           Optional[datetime]
+    place:          Optional[str] = 'INMA'
     comments:       Optional[List[str]]
 
     @validator('primaryType', pre = True)
@@ -369,10 +496,16 @@ class TCmeas(BaseModel):
 ## Calculated data
 ################################################################
 
+class MeasRN(BaseModel):
+    resistance:     float
+    temperature:    float
+    percentage:     float
+
+
 class TcDescription(BaseModel):
     fromFile:       Optional[str]
     fromCurrent:    Optional[PairValueUnit]
-    values:         Optional[List]
+    RN:             Optional[List[MeasRN]]
 
 class FormFactor(BaseModel):
     '''
