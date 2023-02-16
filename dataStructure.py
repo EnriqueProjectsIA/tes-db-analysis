@@ -470,6 +470,7 @@ class TCmeas(BaseModel):
     holder:         str
     primaryType:    str
     secondaryType:  str
+    thirdType:      str
     current:        float
     reentrant:      str
     data:           Optional[List[PairListValueUnit]]
@@ -489,6 +490,12 @@ class TCmeas(BaseModel):
     def check_str_(cls,value:str)->str:
         if value not in ['round','straight']:
             raise MultitransError(value,'secondaryType can only take values round and straight')
+        return value
+    @validator('thirdType', pre = True, allow_reuse=True)
+    @classmethod
+    def check_str_(cls,value:str)->str:
+        if value not in ['irreversible','reversible']:
+            raise MultitransError(value,'thirdType can only take values reversible and irreversible')
         return value
 
 
@@ -521,8 +528,7 @@ class Transport(BaseModel):
     '''
 
     sheetResistance: Optional[PairValueUnit]
-    minCurrent:      Optional[PairValueUnitCom]
-    tcDescription:   Optional[List]
+    tcDescription:   Optional[List[TcDescription]]
 
 class CalculatedData(BaseModel):
     '''
