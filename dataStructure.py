@@ -334,28 +334,45 @@ class Electroplating(BaseModel):
         return value
 
 ################################################################
+## Measured data
+################################################################
+class MeasTypeGeneral(BaseModel):
+    xrd:        Optional[List]
+    transport:  Optional[List]
+
+
+class TCmeas(BaseModel):
+    fromFile:       str
+    primaryType:    str
+    secondaryType:  str
+    current:        float
+    reentrant:      str
+    data:           Optional[List[PairListValueUnit]]
+    comments:       Optional[List[str]]
+
+    @validator('primaryType', pre = True)
+    @classmethod
+    def check_str(cls,value:str)->str:
+        if value not in ['normal', 'double', 'probable', 'tail', 'no tc', 're-entring']:
+            raise MultitransError(value,'primaryType can only take values'\
+                + 'normal, double, probable, tail, no tc, re-entring')
+        return value
+    @validator('secondaryType', pre = True)
+    @classmethod
+    def check_str_(cls,value:str)->str:
+        if value not in ['round','straight']:
+            raise MultitransError(value,'secondaryType can only take values round and straight')
+        return value
+
+
+################################################################
 ## Calculated data
 ################################################################
 
-class TCType(BaseModel):
-    multipleTrans: str
-    amount:        int
-    reentrant:     str
-
-    @validator('multipleTrans', pre = True)
-    @classmethod
-    def check_str(cls,value:str)->str:
-        if value not in ['y','n']:
-            raise MultitransError(value,'multipleTrans can only take values y or n')
-        return value
-    @validator('reentrant', pre = True)
-    @classmethod
-    def check_str_(cls,value:str)->str:
-        if value not in ['y','n']:
-            raise MultitransError(value,'reentrant can only take values y or n')
-        return value
-
-
+class TcDescription(BaseModel):
+    fromFile:       Optional[str]
+    fromCurrent:    Optional[PairValueUnit]
+    values:         Optional[List]
 
 class FormFactor(BaseModel):
     '''
@@ -372,7 +389,7 @@ class Transport(BaseModel):
 
     sheetResistance: Optional[PairValueUnit]
     minCurrent:      Optional[PairValueUnitCom]
-    TcDescription:   Optional[TCType]
+    tcDescription:   Optional[List]
 
 class CalculatedData(BaseModel):
     '''
