@@ -472,7 +472,6 @@ class TCmeas(BaseModel):
     secondaryType:  str
     thirdType:      str
     current:        float
-    reentrant:      str
     data:           Optional[List[PairListValueUnit]]
     date:           Optional[datetime]
     place:          Optional[str] = 'INMA'
