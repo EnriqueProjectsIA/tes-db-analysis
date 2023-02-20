@@ -45,6 +45,7 @@ class DatabaseTes:
             self.collec = self.db.tes
 
 
+
 if __name__ == '__main__':
     objeto = DatabaseTes(True)
     objeto.connect()
